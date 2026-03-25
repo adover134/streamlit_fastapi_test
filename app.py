@@ -102,13 +102,11 @@ for idx, movie in movie_list.iterrows():
         try:
             reviews = requests.get(f'https://adover-test.duckdns.org/review/{movie.name}').json()
             reviews = pd.DataFrame(reviews['result'])
-            c2c=c2.container(height=150)
-            with c2c:
-                for ir, review in reviews.iterrows():
-                    c2_1, c2_2, c2_3 = c2c.columns([2,5,2])
-                    c2_1.text(f"작성자: {review[0]}")
-                    c2_2.text(f"내용: {review[1]}")
-                    c2_3.text(f"평가: {review[2]}")
+            for ir, review in reviews.iterrows():
+                c2_1, c2_2, c2_3 = c2.columns([2,5,2])
+                c2_1.text(f"작성자: {review[0]}")
+                c2_2.text(f"내용: {review[1]}")
+                c2_3.text(f"평가: {review[2]}")
         except Exception as e:
             error_message.text("서버 통신 중 오류가 발생했습니다.")
 
