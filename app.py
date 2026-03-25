@@ -81,31 +81,36 @@ for idx, movie in movie_list.iterrows():
                 submitted = st.form_submit_button("저장", key=f'review_write_{idx}')
                 error_message = st.empty()
                 if submitted:
-                    # 입력된 정보들을 전송합니다.
-                    response = requests.post('https://adover-test.duckdns.org/review',
-                                             data={
-                                                 'movie_id': movie.name, 'writer': writer,
-                                                 'review_text': review_text})
-                    if response.status_code == 200:
-                        st.rerun()
-                    else:
-                        t=response.json()
-                        # 실패 시 에러 메시지를 출력합니다.
-                        error_message.text(f"에러! {t['detail']}")
-                    pass
+                    try:
+                        # 입력된 정보들을 전송합니다.
+                        response = requests.post('https://adover-test.duckdns.org/review',
+                                                data={
+                                                    'movie_id': movie.name, 'writer': writer,
+                                                    'review_text': review_text})
+                        if response.status_code == 200:
+                            st.rerun()
+                        else:
+                            t=response.json()
+                            # 실패 시 에러 메시지를 출력합니다.
+                            error_message.text(f"에러! {t['detail']}")
+                    except Exception as e:
+                        error_message.text("서버 통신 중 오류가 발생했습니다.")
     # 우측의 '리뷰 리스트' 출력 container입니다.
     # 영화 정보를 활용하여 데이터를 얻습니다.
     with c2:
         c2.header('최근 리뷰 목록')
-        reviews = requests.get(f'https://adover-test.duckdns.org/review/{movie.name}').json()
-        reviews = pd.DataFrame(reviews['result'])
-        c2c=c2.container(height=150)
-        with c2c:
-            for ir, review in reviews.iterrows():
-                c2_1, c2_2, c2_3 = c2c.columns([2,5,2])
-                c2_1.text(f"작성자: {review[0]}")
-                c2_2.text(f"내용: {review[1]}")
-                c2_3.text(f"평가: {review[2]}")
+        try:
+            reviews = requests.get(f'https://adover-test.duckdns.org/review/{movie.name}').json()
+            reviews = pd.DataFrame(reviews['result'])
+            c2c=c2.container(height=150)
+            with c2c:
+                for ir, review in reviews.iterrows():
+                    c2_1, c2_2, c2_3 = c2c.columns([2,5,2])
+                    c2_1.text(f"작성자: {review[0]}")
+                    c2_2.text(f"내용: {review[1]}")
+                    c2_3.text(f"평가: {review[2]}")
+        except Exception as e:
+            error_message.text("서버 통신 중 오류가 발생했습니다.")
 
 # pagination용 버튼을 출력하기 위해 설정하였습니다.
 # 이들 중 c1, c2가 실제 버튼이 들어가는 column입니다.
